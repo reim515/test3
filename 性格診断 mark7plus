@@ -121,95 +121,61 @@
     };
 
     const categories = Object.keys(scores);
-    const questions = [];
-    categories.forEach(category => {
-      for (let i = 1; i <= 3; i++) {
-        questions.push({
-          text: `${category} に関する質問 ${i}。`,
-          category
-        });
-      }
-    });
 
-    const quizContainer = document.getElementById("quiz");
-    questions.forEach((q, i) => {
-      const questionEl = document.createElement("div");
-      questionEl.className = "question";
-      questionEl.dataset.category = q.category;
-      questionEl.innerHTML = `<p><strong>質問${i + 1}</strong>: ${q.text}</p>`;
-
-      const answersEl = document.createElement("div");
-      answersEl.className = "answers";
-      [
-        { label: "とてもあてはまる", score: 2 },
-        { label: "あてはまる", score: 1 },
-        { label: "どちらでもない", score: 0 },
-        { label: "あてはまらない", score: -1 },
-        { label: "まったくあてはまらない", score: -2 }
-      ].forEach(option => {
-        const btn = document.createElement("button");
-        btn.textContent = option.label;
-        btn.dataset.score = option.score;
-        btn.onclick = () => {
-          Array.from(answersEl.children).forEach(b => b.classList.remove("selected"));
-          btn.classList.add("selected");
-        };
-        answersEl.appendChild(btn);
-      });
-      questionEl.appendChild(answersEl);
-      quizContainer.appendChild(questionEl);
-    });
-    function showResult() {
-      const warning = document.getElementById("warning");
-      warning.textContent = "";
-      let allAnswered = true;
-
-      Object.keys(scores).forEach(k => scores[k] = 0);
-
-      document.querySelectorAll('.question').forEach(q => {
-        const selected = q.querySelector('button.selected');
-        if (selected) {
-          const score = parseInt(selected.dataset.score);
-          const category = q.dataset.category;
-          scores[category] += score;
-        } else {
-          allAnswered = false;
-        }
-      });
-
-      if (!allAnswered) {
-        warning.textContent = "すべての質問に回答してください。未回答の質問があります。";
-        return;
-      }
-
-      const resultDiv = document.getElementById("result");
-      resultDiv.innerHTML = "<h2>診断結果</h2>";
-
-      resultDiv.innerHTML += `<img class="result-section-image" src="https://source.unsplash.com/600x300/?personality,art" alt="性格診断のイラスト">`;
-
-      for (const category in scores) {
-        const score = scores[category];
-        const tendency = score > 0 ? "肯定的" : score < 0 ? "否定的" : "中立的";
-        const info = personalities[category];
-        resultDiv.innerHTML += `
-          <div class="result-entry">
-            <img src="${info.img}" alt="${category}" class="result-image" />
-            <div>
-              <p><strong>${category}</strong>: スコア ${score}（${tendency}）</p>
-              <p>${info.comment}</p>
-            </div>
-          </div>
-        `;
-      }
-
-      const shareText = encodeURIComponent("私の性格診断の結果を見てみて！");
-      const pageUrl = encodeURIComponent(window.location.href);
-
-      resultDiv.innerHTML += `
-        <a href="https://social-plugins.line.me/lineit/share?url=${pageUrl}" class="share-button line-share" target="_blank">LINEで共有する</a>
-        <a href="https://twitter.com/intent/tweet?text=${shareText}%0A${pageUrl}" class="share-button x-share" target="_blank">Xで共有する</a>
-      `;
-    }
-  </script>
-</body>
-</html>
+    const questionBank = {
+      extraversion: [
+        "初対面の人ともすぐ打ち解けることができる。",
+        "イベントやパーティーに参加するのが好き。",
+        "話すことが得意だと感じる。"
+      ],
+      introversion: [
+        "一人の時間が好きで落ち着く。",
+        "人前に出ると緊張しやすい。",
+        "静かな場所を好む。"
+      ],
+      progressive: [
+        "新しい技術や考え方を取り入れるのが好き。",
+        "変化に柔軟に対応できる方だ。",
+        "現状に満足せず、改善を考える。"
+      ],
+      conservative: [
+        "昔ながらの価値観を大切にしている。",
+        "新しいものより慣れたものを選ぶ。",
+        "慎重に行動するタイプだ。"
+      ],
+      leader: [
+        "人を引っ張ることにやりがいを感じる。",
+        "グループの中で意見をまとめることが多い。",
+        "自信を持って判断することができる。"
+      ],
+      nonleader: [
+        "人のサポートにやりがいを感じる。",
+        "指示を受ける方が安心する。",
+        "前に出るより裏方が好き。"
+      ],
+      nature: [
+        "自然の中で過ごすのが好き。",
+        "動物や植物に親しみを感じる。",
+        "自然保護に関心がある。"
+      ],
+      science: [
+        "論理的に物事を考えることが得意。",
+        "科学や技術に興味がある。",
+        "数字やデータを重視する。"
+      ],
+      agreeable: [
+        "人に優しく接するよう心がけている。",
+        "困っている人を見過ごせない。",
+        "協調性を大切にしている。"
+      ],
+      neurotic: [
+        "感情の浮き沈みが激しい方だ。",
+        "不安を感じやすい。",
+        "繊細な面があるとよく言われる。"
+      ],
+      conscientious: [
+        "計画的に物事を進めるのが得意。",
+        "ルールや約束を守ることを重視する。",
+        "整理整頓を意識している。"
+      ]
+    };
