@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>性格診断</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f4f4f9;
+      padding: 2rem;
+    }
+    .question {
+      margin-bottom: 2rem;
+      background-color: white;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .answers button {
+      margin: 0.3rem;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.1s ease, background-color 0.3s;
+    }
+    .answers button:hover {
+      background-color: #ddd;
+    }
+    .answers button.selected {
+      background-color: #64b5f6 !important;
+    }
+    .answers button:active {
+      transform: scale(0.95);
+    }
+    .result-entry {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      background: #fff;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .result-image {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 1rem;
+    }
+    #result {
+      margin-top: 2rem;
+      font-size: 1.1rem;
+      white-space: pre-wrap;
+    }
+    .share-button {
+      margin: 0.5rem;
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      color: white;
+      border-radius: 0.5rem;
+      text-decoration: none;
+    }
+    .line-share {
+      background-color: #00c300;
+    }
+    .x-share {
+      background-color: #000000;
+    }
+    #warning {
+      color: red;
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+    .result-section-image {
+      display: block;
+      margin: 2rem auto;
+      max-width: 300px;
+      border-radius: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>性格診断</h1>
+  <div id="quiz"></div>
+  <div style="text-align: center; margin-top: 2rem;">
+    <button onclick="showResult()" style="padding: 0.5rem 1rem; font-size: 1rem; border-radius: 0.5rem; cursor: pointer;">結果</button>
+    <div id="warning"></div>
+  </div>
+  <div id="result"></div>
+  <script>
+    const scores = {
+      extraversion: 0,
+      introversion: 0,
+      progressive: 0,
+      conservative: 0,
+      leader: 0,
+      nonleader: 0,
+      nature: 0,
+      science: 0,
+      agreeable: 0,
+      neurotic: 0,
+      conscientious: 0
+    };
+
+    const personalities = {
+      extraversion: { img: 'https://source.unsplash.com/100x100/?party', comment: 'あなたは社交的で人と関わるのが得意！' },
+      introversion: { img: 'https://source.unsplash.com/100x100/?books', comment: '一人時間が大切な静かな思考派タイプ。' },
+      progressive: { img: 'https://source.unsplash.com/100x100/?innovation', comment: '新しいものを受け入れる革新家！' },
+      conservative: { img: 'https://source.unsplash.com/100x100/?tradition', comment: '安定を好み、堅実な価値観の持ち主。' },
+      leader: { img: 'https://source.unsplash.com/100x100/?leadership', comment: '人を導く力を持つリーダータイプ！' },
+      nonleader: { img: 'https://source.unsplash.com/100x100/?support', comment: '縁の下の力持ちタイプ、支えるのが得意！' },
+      nature: { img: 'https://source.unsplash.com/100x100/?nature', comment: '自然との調和を大切にする感受性豊かな人。' },
+      science: { img: 'https://source.unsplash.com/100x100/?technology', comment: '論理的に物事を捉える理系脳！' },
+      agreeable: { img: 'https://source.unsplash.com/100x100/?care', comment: '優しく協力的な性格の持ち主！' },
+      neurotic: { img: 'https://source.unsplash.com/100x100/?emotion', comment: '感情に敏感で繊細なハートの持ち主。' },
+      conscientious: { img: 'https://source.unsplash.com/100x100/?planning', comment: 'まじめで几帳面、信頼される存在！' }
+    };
+
+    const categories = Object.keys(scores);
+    const questions = [];
+    categories.forEach(category => {
+      for (let i = 1; i <= 3; i++) {
+        questions.push({
+          text: `${category} に関する質問 ${i}。`,
+          category
+        });
+      }
+    });
+
+    const quizContainer = document.getElementById("quiz");
+    questions.forEach((q, i) => {
+      const questionEl = document.createElement("div");
+      questionEl.className = "question";
+      questionEl.dataset.category = q.category;
+      questionEl.innerHTML = `<p><strong>質問${i + 1}</strong>: ${q.text}</p>`;
+
+      const answersEl = document.createElement("div");
+      answersEl.className = "answers";
+      [
+        { label: "とてもあてはまる", score: 2 },
+        { label: "あてはまる", score: 1 },
+        { label: "どちらでもない", score: 0 },
+        { label: "あてはまらない", score: -1 },
+        { label: "まったくあてはまらない", score: -2 }
+      ].forEach(option => {
+        const btn = document.createElement("button");
+        btn.textContent = option.label;
+        btn.dataset.score = option.score;
+        btn.onclick = () => {
+          Array.from(answersEl.children).forEach(b => b.classList.remove("selected"));
+          btn.classList.add("selected");
+        };
+        answersEl.appendChild(btn);
+      });
+      questionEl.appendChild(answersEl);
+      quizContainer.appendChild(questionEl);
+    });
+    function showResult() {
+      const warning = document.getElementById("warning");
+      warning.textContent = "";
+      let allAnswered = true;
+
+      Object.keys(scores).forEach(k => scores[k] = 0);
+
+      document.querySelectorAll('.question').forEach(q => {
+        const selected = q.querySelector('button.selected');
+        if (selected) {
+          const score = parseInt(selected.dataset.score);
+          const category = q.dataset.category;
+          scores[category] += score;
+        } else {
+          allAnswered = false;
+        }
+      });
+
+      if (!allAnswered) {
+        warning.textContent = "すべての質問に回答してください。未回答の質問があります。";
+        return;
+      }
+
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "<h2>診断結果</h2>";
+
+      resultDiv.innerHTML += `<img class="result-section-image" src="https://source.unsplash.com/600x300/?personality,art" alt="性格診断のイラスト">`;
+
+      for (const category in scores) {
+        const score = scores[category];
+        const tendency = score > 0 ? "肯定的" : score < 0 ? "否定的" : "中立的";
+        const info = personalities[category];
+        resultDiv.innerHTML += `
+          <div class="result-entry">
+            <img src="${info.img}" alt="${category}" class="result-image" />
+            <div>
+              <p><strong>${category}</strong>: スコア ${score}（${tendency}）</p>
+              <p>${info.comment}</p>
+            </div>
+          </div>
+        `;
+      }
+
+      const shareText = encodeURIComponent("私の性格診断の結果を見てみて！");
+      const pageUrl = encodeURIComponent(window.location.href);
+
+      resultDiv.innerHTML += `
+        <a href="https://social-plugins.line.me/lineit/share?url=${pageUrl}" class="share-button line-share" target="_blank">LINEで共有する</a>
+        <a href="https://twitter.com/intent/tweet?text=${shareText}%0A${pageUrl}" class="share-button x-share" target="_blank">Xで共有する</a>
+      `;
+    }
+  </script>
+</body>
+</html>
