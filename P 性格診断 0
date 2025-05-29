@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>性格診断テスト</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #f9f9f9;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .question {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 5px #ccc;
+    }
+    .buttons {
+      margin-top: 0.5rem;
+    }
+    button {
+      margin-right: 0.5rem;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    button.selected {
+      background-color: #3498db;
+      color: white;
+    }
+    button:not(.selected) {
+      background-color: #ddd;
+      color: #333;
+    }
+    #submit-btn {
+      display: block;
+      margin: 2rem auto;
+      padding: 0.75rem 2rem;
+      font-size: 1.2rem;
+      background-color: #27ae60;
+      color: white;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #e8f5e9;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      text-align: center;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>性格診断テスト</h1>
+
+  <form id="quiz-form">
+    <!-- 質問をJSで動的に追加します -->
+  </form>
+
+  <button id="submit-btn" type="button">診断結果を見る</button>
+
+  <div id="result"></div>
+
+  <script>
+    const questions = [
+      "私は新しいことにチャレンジするのが好きだ。",
+      "人と話すのが得意だ。",
+      "計画を立てて行動する方だ。",
+      "ストレスを感じやすい。",
+      "細かいことに気を配る。",
+      "感情をあまり表に出さない。",
+      "リーダーシップを取ることが多い。",
+      "物事を楽観的に考える。",
+      "一人の時間が好きだ。",
+      "変化を好む。",
+      "慎重に物事を判断する。",
+      "新しい友達を作るのが得意だ。",
+      "困難に直面しても諦めない。",
+      "細かいミスが気になる。",
+      "感情的になりやすい。"
+    ];
+
+    const form = document.getElementById('quiz-form');
+
+    // 質問を動的に生成
+    questions.forEach((q, index) => {
+      const div = document.createElement('div');
+      div.className = 'question';
+      div.innerHTML = `
+        <p><strong>Q${index + 1}.</strong> ${q}</p>
+        <div class="buttons">
+          <button type="button" data-q="${index}" data-value="2">あてはまる</button>
+          <button type="button" data-q="${index}" data-value="1">どちらでもない</button>
+          <button type="button" data-q="${index}" data-value="0">あてはまらない</button>
+        </div>
+      `;
+      form.appendChild(div);
+    });
+
+    // 回答を保存する配列
+    const answers = new Array(questions.length).fill(null);
+
+    // ボタンの選択処理
+    form.addEventListener('click', (e) => {
+      if (e.target.tagName === 'BUTTON' && e.target.dataset.q !== undefined) {
+        const qIndex = Number(e.target.dataset.q);
+        const value = Number(e.target.dataset.value);
+        answers[qIndex] = value;
+
+        // 同じ質問のボタンの選択状態をリセット
+        const buttons = form.querySelectorAll(`button[data-q="${qIndex}"]`);
+        buttons.forEach(btn => btn.classList.remove('selected'));
+
+        // 選択したボタンにselectedクラスを付ける
+        e.target.classList.add('selected');
+      }
+    });
+
+    // 診断結果ボタンの処理
+    document.getElementById('submit-btn').addEventListener('click', () => {
+      // 全問回答済みかチェック
+      if (answers.includes(null)) {
+        alert('すべての質問に回答してください。');
+        return;
+      }
+
+      // 簡単な集計例：合計点数を計算
+      const totalScore = answers.reduce((sum, val) => sum + val, 0);
+
+      // 点数に応じて結果を表示
+      let resultText = '';
+      if (totalScore >= 25) {
+        resultText = 'あなたはとても積極的で社交的な性格です。';
+      } else if (totalScore >= 15) {
+        resultText = 'あなたはバランスの取れた性格で、状況に応じて柔軟に対応できます。';
+      } else {
+        resultText = 'あなたは内向的で慎重な性格です。';
+      }
+
+      const resultDiv = document.getElementById('result');
+      resultDiv.textContent = resultText;
+      resultDiv.style.display = 'block';
+
+      // ページ下部にスクロール
+      resultDiv.scrollIntoView({ behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>
