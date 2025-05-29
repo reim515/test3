@@ -163,6 +163,11 @@
           scores[questions[i].category] += score;
         }
       });
+if (!allAnswered) {
+        warning.textContent = "すべての質問に回答してください。未回答の質問があります。";
+        return;
+      }
+
 
       const results = [
         {
