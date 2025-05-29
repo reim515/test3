@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>性格診断</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f4f4f9;
+      padding: 2rem;
+    }
+    .question {
+      margin-bottom: 2rem;
+      background-color: white;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .answers button {
+      margin: 0.5rem;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.1s ease, background-color 0.3s;
+    }
+    .answers button:hover {
+      background-color: #ddd;
+    }
+    .answers button.selected {
+      background-color: #90ee90 !important;
+    }
+    .answers button:active {
+      transform: scale(0.95);
+    }
+    #result {
+      margin-top: 2rem;
+      padding: 1rem;
+      background-color: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+      font-size: 1.1rem;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>性格診断</h1>
+  <div id="quiz"></div>
+  <div style="text-align: center; margin-top: 2rem;">
+    <button onclick="showResult()" style="padding: 0.5rem 1rem; font-size: 1rem; border-radius: 0.5rem; cursor: pointer;">結果</button>
+  </div>
+  <div id="result"></div>
+
+  <script>
+    const questions = [
+      // 内向性・外向性
+      { text: "人前で話すのが好きだ。", category: "extraversion" },
+      { text: "新しい友達を作るのが得意だ。", category: "extraversion" },
+      { text: "一人の時間を大切にしている。", category: "introversion" },
+      { text: "感情を表に出すタイプだ。", category: "extraversion" },
+      { text: "静かな場所が落ち着く。", category: "introversion" },
+
+      // 保守・先進
+      { text: "新しいことに挑戦するのが好きだ。", category: "progressive" },
+      { text: "変化より安定を好む。", category: "conservative" },
+      { text: "計画を立てるのが好きだ。", category: "conservative" },
+      { text: "ルールに縛られず自由に考える方だ。", category: "progressive" },
+      { text: "昔ながらの方法を好む。", category: "conservative" },
+
+      // リーダーシップ
+      { text: "リーダーシップをとるのが好きだ。", category: "leader" },
+      { text: "他人をまとめるのが得意だ。", category: "leader" },
+      { text: "周囲を引っ張るより支える方が多い。", category: "nonleader" },
+      { text: "意見をはっきり伝える方だ。", category: "leader" },
+      { text: "あまり目立ちたくない。", category: "nonleader" },
+
+      // 自然・科学
+      { text: "自然や芸術に触れるのが好きだ。", category: "nature" },
+      { text: "機械やテクノロジーに興味がある。", category: "science" },
+      { text: "科学的な考え方が得意だ。", category: "science" },
+      { text: "美しい風景を見て感動する。", category: "nature" },
+      { text: "データや数字を分析するのが好き。", category: "science" }
+    ];
+
+    const quizContainer = document.getElementById('quiz');
+    const scores = {
+      extraversion: 0,
+      introversion: 0,
+      progressive: 0,
+      conservative: 0,
+      leader: 0,
+      nonleader: 0,
+      nature: 0,
+      science: 0
+    };
+
+    questions.forEach((q, i) => {
+      const questionDiv = document.createElement('div');
+      questionDiv.className = 'question';
+      questionDiv.innerHTML = `<p><strong>質問${i + 1}</strong>: ${q.text}</p>`;
+
+      const answerDiv = document.createElement('div');
+      answerDiv.className = 'answers';
+      ["あてはまる", "どちらでもない", "あてはまらない"].forEach((choice, index) => {
+        const button = document.createElement('button');
+        button.textContent = choice;
+        button.onclick = () => {
+          Array.from(answerDiv.children).forEach(btn => btn.classList.remove('selected'));
+          button.classList.add('selected');
+          button.dataset.score = [1, 0, -1][index];
+        };
+        answerDiv.appendChild(button);
+      });
+
+      questionDiv.appendChild(answerDiv);
+      quizContainer.appendChild(questionDiv);
+    });
+
+    function showResult() {
+      const allQuestions = document.querySelectorAll('.question');
+      Object.keys(scores).forEach(key => scores[key] = 0);
+
+      allQuestions.forEach((q, i) => {
+        const selected = q.querySelector('button.selected');
+        if (selected) {
+          const score = parseInt(selected.dataset.score);
+          const category = questions[i].category;
+          scores[category] += score;
+        }
+      });
+
+      const results = [
+        `性格タイプ①：${scores.extraversion >= scores.introversion ? "外向的" : "内向的"}`,
+        `性格タイプ②：${scores.progressive >= scores.conservative ? "先進的" : "保守的"}`,
+        `性格タイプ③：${scores.leader >= scores.nonleader ? "リーダータイプ" : "サポートタイプ"}`,
+        `性格タイプ④：${scores.nature >= scores.science ? "自然派" : "科学派"}`
+      ];
+
+      document.getElementById("result").textContent = "あなたの診断結果：\n" + results.join("\n");
+    }
+  </script>
+</body>
+</html>
