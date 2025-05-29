@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>性格診断</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f4f4f9;
+      padding: 2rem;
+    }
+    .question {
+      margin-bottom: 2rem;
+      background-color: white;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .answers button {
+      margin: 0.25rem;
+      padding: 0.5rem 0.75rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: transform 0.1s ease, background-color 0.3s;
+    }
+    .answers button:hover {
+      background-color: #ddd;
+    }
+    .answers button.selected {
+      background-color: #90ee90 !important;
+    }
+    .answers button:active {
+      transform: scale(0.95);
+    }
+    .result-category {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      border-left: 5px solid;
+      border-radius: 0.75rem;
+      background-size: cover;
+      background-position: center;
+      color: #333;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    #result {
+      margin-top: 2rem;
+      font-size: 1.1rem;
+      white-space: pre-wrap;
+    }
+    .share-button {
+      margin: 1rem 0.5rem 0 0;
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background-color: #4caf50;
+      color: white;
+      border-radius: 0.5rem;
+      text-decoration: none;
+    }
+    .line-button {
+      background-color: #00c300;
+    }
+  </style>
+</head>
+<body>
+  <h1>性格診断</h1>
+  <div id="quiz"></div>
+  <div style="text-align: center; margin-top: 2rem;">
+    <button onclick="showResult()" style="padding: 0.5rem 1rem; font-size: 1rem; border-radius: 0.5rem; cursor: pointer;">結果</button>
+  </div>
+  <div id="result"></div>
+
+  <script>
+    const questions = [ /* ← ここに既存の質問リストが入ります（省略） */ ];
+
+    const scores = {
+      extraversion: 0, introversion: 0,
+      progressive: 0, conservative: 0,
+      leader: 0, nonleader: 0,
+      nature: 0, science: 0,
+      agreeable: 0, neurotic: 0, conscientious: 0
+    };
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    shuffleArray(questions);
+
+    const quizContainer = document.getElementById('quiz');
+    questions.forEach((q, i) => {
+      const questionDiv = document.createElement('div');
+      questionDiv.className = 'question';
+      questionDiv.innerHTML = `<p><strong>質問${i + 1}</strong>: ${q.text}</p>`;
+      const answerDiv = document.createElement('div');
+      answerDiv.className = 'answers';
+      ["とてもあてはまる", "あてはまる", "どちらでもない", "あてはまらない", "まったくあてはまらない"].forEach((choice, index) => {
+        const button = document.createElement('button');
+        button.textContent = choice;
+        button.onclick = () => {
+          Array.from(answerDiv.children).forEach(btn => btn.classList.remove('selected'));
+          button.classList.add('selected');
+          button.dataset.score = [2, 1, 0, -1, -2][index];
+        };
+        answerDiv.appendChild(button);
+      });
+      questionDiv.appendChild(answerDiv);
+      quizContainer.appendChild(questionDiv);
+    });
+
+    function showResult() {
+      Object.keys(scores).forEach(k => scores[k] = 0);
+      questions.forEach((question, i) => {
+        const selected = document.querySelectorAll('.question')[i].querySelector('button.selected');
+        if (selected) {
+          const score = parseInt(selected.dataset.score);
+          scores[question.category] += score;
+        }
+      });
+
+      const results = [ /* ← 各診断カテゴリ結果処理（省略可能） */ ];
+
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "<h2>あなたの診断結果：</h2>" +
+        results.map(r => `<div class='result-category' style="border-left-color:${r.color}; background-color:${r.color}33; background-image: url('https://source.unsplash.com/400x200/?${encodeURIComponent(r.value)}');">
+          <h3>${r.image} ${r.title}</h3><strong>${r.value}</strong><p>${r.detail}</p></div>`).join('') +
+        `<a class='share-button' href="https://twitter.com/intent/tweet?text=私の性格診断結果！%0A${results.map(r => r.title + ' ' + r.value).join('%0A')}%0A" target="_blank">X（旧Twitter）で共有する</a>` +
+        `<a class='share-button line-button' href="https://social-plugins.line.me/lineit/share?url=https://example.com" target="_blank">LINEで共有する</a>`;
+    }
+  </script>
+</body>
+</html>
