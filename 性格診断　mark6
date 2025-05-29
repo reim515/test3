@@ -223,7 +223,9 @@
       resultDiv.innerHTML = "<h2>あなたの診断結果：</h2>" +
         results.map(r => `<div class='result-category' style="border-left-color:${r.color}; background-color:${r.color}33; background-image: url('https://source.unsplash.com/400x200/?${encodeURIComponent(r.value)}');">
           <h3>${r.image} ${r.title}</h3><strong>${r.value}</strong><p>${r.detail}</p></div>`).join('') +
-        `<a class='share-button' href="https://twitter.com/intent/tweet?text=私の性格診断結果！%0A${tweetText}" target="_blank">X（旧Twitter）で共有</a>
+        `<a class='share-button' href="https://twitter.com/intent/tweet?text=私の性格診断結果！%0A${tweetText}" target="_blank">X（旧Twitter）で共有</a>{
+  background-color: #000000; /* 黒 */
+}
          <a class='share-button line-share' href="https://social-plugins.line.me/lineit/share?url=https://example.com&text=${lineText}" target="_blank">LINEで共有</a>`;
     }
   </script>
