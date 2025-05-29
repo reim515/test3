@@ -1,0 +1,18 @@
+<style>
+  .result-category {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-left: 5px solid;
+    border-radius: 0.75rem;
+    background-size: cover;
+    background-position: center;
+    color: #333;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+</style>
+
+const resultDiv = document.getElementById("result");
+resultDiv.innerHTML = "<h2>あなたの診断結果：</h2>" +
+  results.map(r => `<div class='result-category' style="border-left-color:${r.color}; background-color:${r.color}33; background-image: url('https://source.unsplash.com/400x200/?${encodeURIComponent(r.value)}');">
+    <h3>${r.image} ${r.title}</h3><strong>${r.value}</strong><p>${r.detail}</p></div>`).join('') +
+  `<a class='share-button' href="https://twitter.com/intent/tweet?text=私の性格診断結果！%0A${results.map(r => r.title + ' ' + r.value).join('%0A')}%0A" target="_blank">X（旧Twitter）で共有する</a>`;
