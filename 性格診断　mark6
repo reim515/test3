@@ -161,9 +161,12 @@
         if (selected) {
           const score = parseInt(selected.dataset.score);
           scores[questions[i].category] += score;
+       } else {
+          allAnswered = false;
         }
       });
-if (!allAnswered) {
+
+      if (!allAnswered) {
         warning.textContent = "すべての質問に回答してください。未回答の質問があります。";
         return;
       }
